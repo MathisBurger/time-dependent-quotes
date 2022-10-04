@@ -3,6 +3,7 @@ use sqlx::{Pool, Postgres};
 use dotenv;
 
 mod database;
+mod controller;
 
 struct AppState {
     db: Pool<Postgres>
@@ -25,7 +26,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(AppState {
                 db: conn.clone()
             })
-            .route("/hello", web::get().to(|| async { "Hello World!" }))
+            .service(controller::quote_controller::add_quote)
     })
         .bind(("127.0.0.1", 8080))?
         .run()
