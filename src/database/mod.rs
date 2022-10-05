@@ -2,6 +2,8 @@ use std::{env, process};
 use sqlx::{Pool, Postgres};
 use sqlx::postgres::PgPoolOptions;
 
+pub mod quote;
+
 /// Connects to the postgres database
 /// and quits the application if there is no database
 /// url provided via .env

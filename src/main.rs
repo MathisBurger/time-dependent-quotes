@@ -4,6 +4,7 @@ use dotenv;
 
 mod database;
 mod controller;
+mod random;
 
 struct AppState {
     db: Pool<Postgres>

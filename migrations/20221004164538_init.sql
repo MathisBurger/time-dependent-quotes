@@ -1,2 +1,2 @@
 -- Add migration script here
-CREATE TABLE IF NOT EXISTS quotes (title VARCHAR(255), hash VARCHAR(255), uploaded_at DATE);
+CREATE TABLE IF NOT EXISTS quotes (id INT NOT NULL PRIMARY KEY, title VARCHAR(255), hash VARCHAR(255), uploaded_at TIMESTAMP WITH TIME ZONE, admin_key VARCHAR(255) DEFAULT NULL);
