@@ -1,40 +1,40 @@
 use chrono::{DateTime, Utc};
-use sqlx::{Executor, Pool, Postgres, Row};
+use sqlx::{Error, Executor, FromRow, Pool, Postgres, query, query_as, Row};
 use crate::random::get_random_string;
+use serde::Serialize;
 
+#[derive(sqlx::FromRow, Serialize)]
 pub(crate) struct Quote {
     id: i32,
     title: Option<String>,
     hash: Option<String>,
-    uploaded_at: Option<DateTime<Utc>>,
+    uploaded_at: Option<i64>,
     admin_key: Option<String>
 }
 
 impl Quote {
 
     pub async fn insert_quote(conn: &Pool<Postgres>, title: &String) -> Quote {
-        let date = Utc::now();
+        let date = Utc::now().timestamp_millis();
         let admin_key = get_random_string(255);
-        conn.execute(
-            "INSERT INTO quotes (title, uploaded_at, admin_key) VALUES ($1, $2 $3)",
-            &[title, &date, &admin_key]
-        ).await.unwrap();
-        return Quote::get_by_admin_key(conn, admin_key).await.unwrap();
+        let quote = query_as::<_, Quote>(
+            "INSERT INTO quotes (title, uploaded_at, admin_key) VALUES ($1, $2, $3) RETURNING *;"
+        )
+            .bind(title)
+            .bind(date)
+            .bind(admin_key)
+            .fetch_one(conn).await.unwrap();
+        return quote;
     }
 
     pub async fn get_by_admin_key(conn: &Pool<Postgres>, admin_key: String) -> Option<Quote> {
-        let res = conn
-            .fetch_one("SELECT * FROM quotes WHERE admin_key=$1", &[&admin_key])
+        let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE admin_key=$1")
+            .bind(admin_key)
+            .fetch_one(conn)
             .await;
         match res {
             Err(e) => None,
-            Ok(row) => Quote {
-                id: row.get(0),
-                title: row.get(1),
-                hash: row.get(2),
-                uploaded_at: row.get(3),
-                admin_key: row.get(4)
-            }
+            Ok(row) => Some(row)
         }
 
     }

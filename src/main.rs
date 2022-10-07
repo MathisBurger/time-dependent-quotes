@@ -1,4 +1,6 @@
 use actix_web::{web, App, HttpServer};
+use actix_web::middleware::Logger;
+use actix_web::web::Data;
 use sqlx::{Pool, Postgres};
 use dotenv;
 
@@ -15,6 +17,9 @@ struct AppState {
 async fn main() -> std::io::Result<()> {
 
     dotenv::dotenv().ok();
+    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_BACKTRACE", "1");
+    env_logger::init();
 
     let conn = database::connect().await;
 
@@ -24,9 +29,10 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(AppState {
+            .wrap(Logger::new("%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %T"))
+            .app_data(Data::new(AppState {
                 db: conn.clone()
-            })
+            }))
             .service(controller::quote_controller::add_quote)
     })
         .bind(("127.0.0.1", 8080))?

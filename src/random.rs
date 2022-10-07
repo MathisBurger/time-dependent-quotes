@@ -1,8 +1,10 @@
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 
-
-pub(crate) fn get_random_string(length: i32) -> String {
+pub(crate) fn get_random_string(length: usize) -> String {
     rand::thread_rng()
-        .gen_acscii_chars()
+        .sample_iter(&Alphanumeric)
         .take(length)
-        .collect::<String>()
+        .map(char::from)
+        .collect()
 }
