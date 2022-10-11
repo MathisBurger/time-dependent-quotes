@@ -16,3 +16,9 @@ chrono = {version = "0.4", features = ["serde"]}
 rand = "0.8.5"
 env_logger = "0.9.0"
 log = "0.4.17"
+actix-files = "0.5.0"
+actix-multipart = "0.4.0"
+sha256 = "1.0.3"
+futures-util = { version = "0.3.17", default-features = false, features = ["std"] }
+sanitize-filename = "0.4"
+uuid = { version = "1", features = ["v4"] }

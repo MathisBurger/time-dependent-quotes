@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
                 db: conn.clone()
             }))
             .service(controller::quote_controller::add_quote)
+            .service(controller::form_controller::upload_form)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

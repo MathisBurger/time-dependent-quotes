@@ -5,24 +5,25 @@ use serde::Serialize;
 
 #[derive(sqlx::FromRow, Serialize)]
 pub(crate) struct Quote {
-    id: i32,
-    title: Option<String>,
-    hash: Option<String>,
-    uploaded_at: Option<i64>,
-    admin_key: Option<String>
+    pub(crate) id: i32,
+    pub(crate) title: Option<String>,
+    pub(crate) hash: Option<String>,
+    pub(crate) uploaded_at: Option<i64>,
+    pub(crate) admin_key: Option<String>
 }
 
 impl Quote {
 
-    pub async fn insert_quote(conn: &Pool<Postgres>, title: &String) -> Quote {
+    pub async fn insert_quote(conn: &Pool<Postgres>, title: &String, filename: &String) -> Quote {
         let date = Utc::now().timestamp_millis();
         let admin_key = get_random_string(255);
         let quote = query_as::<_, Quote>(
-            "INSERT INTO quotes (title, uploaded_at, admin_key) VALUES ($1, $2, $3) RETURNING *;"
+            "INSERT INTO quotes (title, uploaded_at, admin_key, filename) VALUES ($1, $2, $3, $4) RETURNING *;"
         )
             .bind(title)
             .bind(date)
             .bind(admin_key)
+            .bind(filename)
             .fetch_one(conn).await.unwrap();
         return quote;
     }
@@ -36,6 +37,17 @@ impl Quote {
             Err(e) => None,
             Ok(row) => Some(row)
         }
+    }
 
+    pub async fn update_hash(conn: &Pool<Postgres>, quote_id: i32, hash: String) -> Option<Quote> {
+        let res = query_as::<_, Quote>("UPDATE quotes SET hash=$1 WHERE id=$2 RETURNING *")
+            .bind(hash)
+            .bind(quote_id)
+            .fetch_one(conn)
+            .await;
+        match res {
+            Err(e) => None,
+            Ok(row) => Some(row)
+        }
     }
 }
