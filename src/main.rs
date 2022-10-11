@@ -35,7 +35,9 @@ async fn main() -> std::io::Result<()> {
             }))
             .service(controller::quote_controller::add_quote)
             .service(controller::quote_controller::search_for_quote)
+            .service(controller::validate_controller::validate_quote)
             .service(controller::form_controller::upload_form)
+            .service(controller::form_controller::validate_form)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

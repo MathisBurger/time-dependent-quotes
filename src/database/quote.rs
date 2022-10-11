@@ -30,7 +30,7 @@ impl Quote {
         return quote;
     }
 
-    pub async fn get_by_admin_key(conn: &Pool<Postgres>, admin_key: String) -> Option<Quote> {
+    pub async fn get_by_admin_key(conn: &Pool<Postgres>, admin_key: &String) -> Option<Quote> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE admin_key=$1;")
             .bind(admin_key)
             .fetch_one(conn)
