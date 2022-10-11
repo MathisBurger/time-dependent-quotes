@@ -14,16 +14,17 @@ pub(crate) struct Quote {
 
 impl Quote {
 
-    pub async fn insert_quote(conn: &Pool<Postgres>, title: &String, filename: &String) -> Quote {
+    pub async fn insert_quote(conn: &Pool<Postgres>, title: &String, filename: &String, hash: &String) -> Quote {
         let date = Utc::now().timestamp_millis();
         let admin_key = get_random_string(255);
         let quote = query_as::<_, Quote>(
-            "INSERT INTO quotes (title, uploaded_at, admin_key, filename) VALUES ($1, $2, $3, $4) RETURNING *;"
+            "INSERT INTO quotes (title, uploaded_at, admin_key, filename, hash) VALUES ($1, $2, $3, $4, $5) RETURNING *;"
         )
             .bind(title)
             .bind(date)
             .bind(admin_key)
             .bind(filename)
+            .bind(hash)
             .fetch_one(conn).await.unwrap();
         return quote;
     }

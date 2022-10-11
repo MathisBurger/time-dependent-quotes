@@ -27,13 +27,15 @@ pub(crate) async fn add_quote(
             .get_filename()
             .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize);
         let filepath = format!("./data/{}", filename.clone());
+        let cloned_path = filepath.clone();
 
         let mut f = web::block(|| std::fs::File::create(filepath)).await??;
 
         while let Some(chunk) = field.try_next().await? {
             f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
         }
-        Quote::insert_quote(&data.db, &query.title, &filename).await;
+        let hash = sha256::digest_file(std::path::Path::new(&cloned_path)).unwrap();
+        Quote::insert_quote(&data.db, &query.title, &filename, &hash).await;
     }
 
     Ok(HttpResponse::Ok().into())
