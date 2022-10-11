@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Validation: {{title}}</h1>
+
+<form id="validation-form">
+    <label>File:</label>
+    <input type="file" />
+    <input type="submit">
+</form>
+
+<script>
+    document.getElementById("validation-form").addEventListener('submit', (e) => {
+        e.preventDefault();
+        let files = e.target[0].files[0];
+        let formData = new FormData();
+        formData.append("file", files);
+        fetch(`/api/quote/validate?admin_key=${location.pathname.replaceAll("/validate/", "")}`, {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors'
+        }).then((res) => {
+            if (res.ok) {
+                alert("Source is valid");
+                location.reload();
+            } else {
+                alert("Source is invalid");
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

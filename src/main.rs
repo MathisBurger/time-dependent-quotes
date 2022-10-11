@@ -47,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(controller::template_controller::index_page)
             .service(controller::template_controller::all_sources_page)
             .service(controller::template_controller::upload_page)
+            .service(controller::template_controller::validate_page)
     })
         .bind(("127.0.0.1", 8080))?
         .run()
