@@ -13,6 +13,13 @@ pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
     HttpResponse::Ok().body(rendered)
 }
 
+#[get("/upload")]
+pub(crate) async fn upload_page(data: web::Data<AppState>) -> HttpResponse {
+    let mut ctx = Context::new();
+    let rendered = data.tmpl.render("upload.html", &ctx).unwrap();
+    HttpResponse::Ok().body(rendered)
+}
+
 #[derive(Serialize)]
 pub(crate) struct ResponseQuote {
     pub(crate) id: i32,

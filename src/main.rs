@@ -19,8 +19,8 @@ struct AppState {
 async fn main() -> std::io::Result<()> {
 
     dotenv::dotenv().ok();
-    std::env::set_var("RUST_LOG", "error");
-    //std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("RUST_LOG", "debug");
+    std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
     let conn = database::connect().await;
@@ -46,6 +46,7 @@ async fn main() -> std::io::Result<()> {
             .service(controller::validate_controller::validate_quote)
             .service(controller::template_controller::index_page)
             .service(controller::template_controller::all_sources_page)
+            .service(controller::template_controller::upload_page)
     })
         .bind(("127.0.0.1", 8080))?
         .run()

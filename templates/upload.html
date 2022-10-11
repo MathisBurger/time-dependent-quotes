@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Upload</h1>
+
+<form id="upload-form">
+    <label>Title:</label>
+    <input type="text" />
+    <label>File:</label>
+    <input type="file" />
+    <input type="submit">
+</form>
+
+<script>
+    document.getElementById("upload-form").addEventListener('submit', (e) => {
+        e.preventDefault();
+        let title = e.target[0].value;
+        let files = e.target[1].files[0];
+        let formData = new FormData();
+        formData.append("file", files);
+        fetch(`/api/quote/add?title=${title}`, {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors'
+        }).then((res) => {
+            if (res.ok) {
+                alert("Successfully uploaded quote");
+                location.reload();
+            } else {
+                alert("Error while uploading quote");
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

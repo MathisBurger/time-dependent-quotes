@@ -28,9 +28,7 @@ pub(crate) async fn add_quote(
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field.content_disposition();
 
-        let filename = content_disposition
-            .get_filename()
-            .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize);
+        let filename = format!("{}.{}", Uuid::new_v4().to_string(), content_disposition.get_filename().unwrap());
         let filepath = format!("./data/{}", filename.clone());
         let cloned_path = filepath.clone();
 
