@@ -9,7 +9,8 @@ pub(crate) struct Quote {
     pub(crate) title: Option<String>,
     pub(crate) hash: Option<String>,
     pub(crate) uploaded_at: Option<i64>,
-    pub(crate) admin_key: Option<String>
+    pub(crate) admin_key: Option<String>,
+    pub(crate) filename: Option<String>
 }
 
 impl Quote {
@@ -30,7 +31,7 @@ impl Quote {
     }
 
     pub async fn get_by_admin_key(conn: &Pool<Postgres>, admin_key: String) -> Option<Quote> {
-        let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE admin_key=$1")
+        let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE admin_key=$1;")
             .bind(admin_key)
             .fetch_one(conn)
             .await;
@@ -40,8 +41,19 @@ impl Quote {
         }
     }
 
+    pub async fn search_by_title(conn: &Pool<Postgres>, search_string: &String) -> Option<Quote> {
+        let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE title LIKE $1;")
+            .bind("%".to_owned() + search_string + "%")
+            .fetch_one(conn)
+            .await;
+        match res {
+            Err(e) => None,
+            Ok(row) => Some(row)
+        }
+    }
+
     pub async fn update_hash(conn: &Pool<Postgres>, quote_id: i32, hash: String) -> Option<Quote> {
-        let res = query_as::<_, Quote>("UPDATE quotes SET hash=$1 WHERE id=$2 RETURNING *")
+        let res = query_as::<_, Quote>("UPDATE quotes SET hash=$1 WHERE id=$2 RETURNING *;")
             .bind(hash)
             .bind(quote_id)
             .fetch_one(conn)

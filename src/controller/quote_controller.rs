@@ -13,6 +13,11 @@ pub(crate) struct AddQuoteRequest {
     title: String
 }
 
+#[derive(Deserialize)]
+pub(crate) struct SearchForQuoteRequest {
+    search_string: String
+}
+
 
 #[post("/api/quote/add")]
 pub(crate) async fn add_quote(
@@ -39,4 +44,18 @@ pub(crate) async fn add_quote(
     }
 
     Ok(HttpResponse::Ok().into())
+}
+
+#[get("/api/quote/search")]
+pub(crate) async fn search_for_quote(
+    query: web::Query<SearchForQuoteRequest>,
+    data: web::Data<AppState>
+) -> Result<HttpResponse, Error> {
+
+    let result = Quote::search_by_title(&data.db, &query.search_string)
+        .await;
+    if result.is_some() {
+        return Ok(HttpResponse::Ok().json(result.unwrap()));
+    }
+    return Ok(HttpResponse::Ok().into());
 }
