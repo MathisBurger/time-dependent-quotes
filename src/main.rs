@@ -1,9 +1,9 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use sqlx::{Pool, Postgres};
 use dotenv;
-use tera::{Tera, Context};
+use tera::Tera;
 
 mod database;
 mod controller;
@@ -19,8 +19,8 @@ struct AppState {
 async fn main() -> std::io::Result<()> {
 
     dotenv::dotenv().ok();
-    std::env::set_var("RUST_LOG", "debug");
-    std::env::set_var("RUST_BACKTRACE", "1");
+    //std::env::set_var("RUST_LOG", "debug");
+    //std::env::set_var("RUST_BACKTRACE", "1");
     env_logger::init();
 
     let conn = database::connect().await;

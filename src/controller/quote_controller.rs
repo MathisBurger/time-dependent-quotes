@@ -1,11 +1,9 @@
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::str::FromStr;
-use actix_web::{HttpResponse, Responder, web, get, post, Error, HttpRequest, error, middleware};
+use actix_web::{HttpResponse, web, get, post, Error};
 use crate::AppState;
 use serde::Deserialize;
-use crate::controller::responses::ErrorResponse;
 use crate::database::quote::Quote;
 use actix_multipart::Multipart;
 use chrono::{DateTime, NaiveDateTime, Utc};
@@ -64,7 +62,7 @@ pub(crate) async fn search_for_quote(
     data: web::Data<AppState>
 ) -> Result<HttpResponse, Error> {
 
-    let mut result = None;
+    let mut result;
     if &query.search_string.is_some() == &true {
         let search_string = query.search_string.as_ref().unwrap();
         result = Quote::search_by_title(&data.db, &search_string)

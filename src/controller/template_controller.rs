@@ -1,5 +1,4 @@
 use actix_web::{HttpResponse, web, get, HttpRequest};
-use actix_web::http::header::q;
 use chrono::{DateTime, NaiveDateTime, Utc};
 use tera::Context;
 use serde::Serialize;
@@ -10,7 +9,7 @@ use std::str::FromStr;
 /// Default web response
 #[get("/")]
 pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
-    let mut ctx = Context::new();
+    let ctx = Context::new();
     let rendered = data.tmpl.render("index.html", &ctx).unwrap();
     HttpResponse::Ok().body(rendered)
 }
@@ -18,7 +17,7 @@ pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
 /// Web page for uploading new quotes
 #[get("/upload")]
 pub(crate) async fn upload_page(data: web::Data<AppState>) -> HttpResponse {
-    let mut ctx = Context::new();
+    let ctx = Context::new();
     let rendered = data.tmpl.render("upload.html", &ctx).unwrap();
     HttpResponse::Ok().body(rendered)
 }

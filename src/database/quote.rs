@@ -1,5 +1,5 @@
-use chrono::{DateTime, Utc};
-use sqlx::{Error, Executor, FromRow, Pool, Postgres, query, query_as, Row};
+use chrono::Utc;
+use sqlx::{Pool, Postgres, query_as};
 use crate::random::get_random_string;
 use serde::Serialize;
 
@@ -38,7 +38,7 @@ impl Quote {
             .fetch_one(conn)
             .await;
         match res {
-            Err(e) => None,
+            Err(_) => None,
             Ok(row) => Some(row)
         }
     }
@@ -50,7 +50,7 @@ impl Quote {
             .fetch_one(conn)
             .await;
         match res {
-            Err(e) => None,
+            Err(_) => None,
             Ok(row) => Some(row)
         }
     }
@@ -62,7 +62,7 @@ impl Quote {
             .fetch_all(conn)
             .await;
         match res {
-            Err(e) => None,
+            Err(_) => None,
             Ok(row) => Some(row)
         }
     }
