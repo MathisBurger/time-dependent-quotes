@@ -52,10 +52,10 @@ impl Quote {
         }
     }
 
-    pub async fn search_by_title(conn: &Pool<Postgres>, search_string: &String) -> Option<Quote> {
+    pub async fn search_by_title(conn: &Pool<Postgres>, search_string: &String) -> Option<Vec<Quote>> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE title LIKE $1;")
             .bind("%".to_owned() + search_string + "%")
-            .fetch_one(conn)
+            .fetch_all(conn)
             .await;
         match res {
             Err(e) => None,

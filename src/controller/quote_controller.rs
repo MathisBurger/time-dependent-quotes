@@ -8,8 +8,11 @@ use serde::Deserialize;
 use crate::controller::responses::ErrorResponse;
 use crate::database::quote::Quote;
 use actix_multipart::Multipart;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use futures_util::TryStreamExt as _;
+use tera::Context;
 use uuid::Uuid;
+use crate::controller::template_controller::ResponseQuote;
 
 #[derive(Deserialize)]
 pub(crate) struct AddQuoteRequest {
@@ -18,7 +21,7 @@ pub(crate) struct AddQuoteRequest {
 
 #[derive(Deserialize)]
 pub(crate) struct SearchForQuoteRequest {
-    search_string: String
+    search_string: Option<String>
 }
 
 #[derive(Deserialize)]
@@ -52,18 +55,41 @@ pub(crate) async fn add_quote(
     Ok(HttpResponse::Ok().into())
 }
 
-#[get("/api/quote/search")]
+#[get("/search")]
 pub(crate) async fn search_for_quote(
     query: web::Query<SearchForQuoteRequest>,
     data: web::Data<AppState>
 ) -> Result<HttpResponse, Error> {
 
-    let result = Quote::search_by_title(&data.db, &query.search_string)
-        .await;
-    if result.is_some() {
-        return Ok(HttpResponse::Ok().json(result.unwrap()));
+    let mut result = None;
+    if &query.search_string.is_some() == &true {
+        let search_string = query.search_string.as_ref().unwrap();
+        result = Quote::search_by_title(&data.db, &search_string)
+            .await;
+    } else {
+        result = Some(vec![]);
     }
-    return Ok(HttpResponse::Ok().into());
+    if result.is_some() {
+        let unwrapped_result = result.unwrap();
+        let mut response_quotes = vec![];
+        for quote in unwrapped_result {
+            let naive = NaiveDateTime::from_timestamp(quote.uploaded_at.unwrap(), 0);
+            let utc_time: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+            response_quotes.push(ResponseQuote {
+                id: quote.id,
+                title: quote.title,
+                hash: quote.hash,
+                uploaded_at: utc_time.to_rfc2822(),
+                admin_key: quote.admin_key,
+                filename: quote.filename
+            });
+        }
+        let mut ctx = Context::new();
+        ctx.insert("quotes", &response_quotes);
+        let rendered = data.tmpl.render("search.html", &ctx).unwrap();
+        return Ok(HttpResponse::Ok().body(rendered));
+    }
+    return Ok(HttpResponse::BadRequest().body("Nothing found"));
 }
 
 #[get("/api/quote/download")]
