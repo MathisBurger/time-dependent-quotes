@@ -5,6 +5,7 @@ use tera::Context;
 use serde::Serialize;
 use crate::AppState;
 use crate::database::quote::Quote;
+use std::str::FromStr;
 
 #[get("/")]
 pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
@@ -62,5 +63,30 @@ pub(crate) async fn all_sources_page(data: web::Data<AppState>) -> HttpResponse 
     }
     ctx.insert("quotes", &response_quotes);
     let rendered = data.tmpl.render("all-sources.html", &ctx).unwrap();
+    HttpResponse::Ok().body(rendered)
+}
+
+#[get("/view/{id}")]
+pub(crate) async fn view_page(data: web::Data<AppState>, req: HttpRequest) -> HttpResponse {
+    let admin_key = req.match_info().get("id").unwrap();
+    let id: i32 = FromStr::from_str(admin_key).unwrap();
+    let quote = Quote::get_by_id(&data.db, id).await;
+    if quote.is_none() {
+        return HttpResponse::BadRequest().body("Quote does not exist");
+    }
+    let mut ctx = Context::new();
+    let naive = NaiveDateTime::from_timestamp(quote.as_ref().unwrap().uploaded_at.unwrap(), 0);
+    let utc_time: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+    let raw_quote = quote.unwrap();
+    let response_quote = ResponseQuote {
+        id: raw_quote.id,
+        title: raw_quote.title,
+        hash: raw_quote.hash,
+        uploaded_at: utc_time.to_rfc2822(),
+        admin_key: raw_quote.admin_key,
+        filename: raw_quote.filename
+    };
+    ctx.insert("quote", &response_quote);
+    let rendered = data.tmpl.render("view.html", &ctx).unwrap();
     HttpResponse::Ok().body(rendered)
 }

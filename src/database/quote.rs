@@ -41,6 +41,17 @@ impl Quote {
         }
     }
 
+    pub async fn get_by_id(conn: &Pool<Postgres>, id: i32) -> Option<Quote> {
+        let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE id=$1;")
+            .bind(id)
+            .fetch_one(conn)
+            .await;
+        match res {
+            Err(e) => None,
+            Ok(row) => Some(row)
+        }
+    }
+
     pub async fn search_by_title(conn: &Pool<Postgres>, search_string: &String) -> Option<Quote> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE title LIKE $1;")
             .bind("%".to_owned() + search_string + "%")

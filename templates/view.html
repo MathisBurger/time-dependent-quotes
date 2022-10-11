@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Details: {{quote.title}}</h1>
+
+<p>ID: {{quote.id}}</p>
+<p>Title: {{quote.title}}</p>
+<p>Hash: {{quote.hash}}</p>
+<p>Uploaded at: {{quote.uploaded_at}}</p>
+{% endblock content %}
