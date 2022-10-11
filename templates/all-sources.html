@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    .actions {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+    }
+</style>
 <h1>All sources</h1>
 
 <table border="1">
@@ -20,7 +27,12 @@
         <td>{{quote.title}}</td>
         <td>{{quote.uploaded_at}}</td>
         <td>{{quote.hash}}</td>
-        <td><a href="#">View</a></td>
+        <td>
+            <div class="actions">
+                <a href="#">View</a>
+                <a href="/validate/{{quote.admin_key}}">Validate</a>
+            </div>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
