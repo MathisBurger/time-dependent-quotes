@@ -12,6 +12,7 @@ pub(crate) struct ValidateQuoteRequest {
     admin_key: String
 }
 
+/// Validates the incoming file
 #[post("/api/quote/validate")]
 pub(crate) async fn validate_quote(
     mut payload: Multipart,

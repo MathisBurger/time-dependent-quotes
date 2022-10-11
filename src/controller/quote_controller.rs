@@ -30,6 +30,7 @@ pub(crate) struct DownloadQuoteRequest {
 }
 
 
+/// Endpoint for adding a new quote
 #[post("/api/quote/add")]
 pub(crate) async fn add_quote(
     mut payload: Multipart,
@@ -55,6 +56,8 @@ pub(crate) async fn add_quote(
     Ok(HttpResponse::Ok().into())
 }
 
+/// Renders a web template that can be used to
+/// search for quote titles
 #[get("/search")]
 pub(crate) async fn search_for_quote(
     query: web::Query<SearchForQuoteRequest>,
@@ -92,6 +95,8 @@ pub(crate) async fn search_for_quote(
     return Ok(HttpResponse::BadRequest().body("Nothing found"));
 }
 
+/// Endpoint used to download the quote
+/// with the given ID
 #[get("/api/quote/download")]
 pub(crate) async fn download_quote(
     data: web::Data<AppState>,
@@ -107,6 +112,7 @@ pub(crate) async fn download_quote(
     HttpResponse::Ok().body(file_bytes)
 }
 
+/// Reads the bytes from a file and returns them
 fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
     let mut f = File::open(&filename).expect("no file found");
     let metadata = fs::metadata(&filename).expect("unable to read metadata");

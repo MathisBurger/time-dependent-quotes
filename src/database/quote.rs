@@ -15,6 +15,7 @@ pub(crate) struct Quote {
 
 impl Quote {
 
+    /// Creates a new quote from the given data
     pub async fn insert_quote(conn: &Pool<Postgres>, title: &String, filename: &String, hash: &String) -> Quote {
         let date = Utc::now().timestamp_millis();
         let admin_key = get_random_string(255);
@@ -30,6 +31,7 @@ impl Quote {
         return quote;
     }
 
+    /// Gets a specific quote by the admin key
     pub async fn get_by_admin_key(conn: &Pool<Postgres>, admin_key: &String) -> Option<Quote> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE admin_key=$1;")
             .bind(admin_key)
@@ -41,6 +43,7 @@ impl Quote {
         }
     }
 
+    /// Gets a specific quote by the ID
     pub async fn get_by_id(conn: &Pool<Postgres>, id: i32) -> Option<Quote> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE id=$1;")
             .bind(id)
@@ -52,6 +55,7 @@ impl Quote {
         }
     }
 
+    /// Searches for multiple quotes with a title
     pub async fn search_by_title(conn: &Pool<Postgres>, search_string: &String) -> Option<Vec<Quote>> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes WHERE title LIKE $1;")
             .bind("%".to_owned() + search_string + "%")
@@ -63,18 +67,7 @@ impl Quote {
         }
     }
 
-    pub async fn update_hash(conn: &Pool<Postgres>, quote_id: i32, hash: String) -> Option<Quote> {
-        let res = query_as::<_, Quote>("UPDATE quotes SET hash=$1 WHERE id=$2 RETURNING *;")
-            .bind(hash)
-            .bind(quote_id)
-            .fetch_one(conn)
-            .await;
-        match res {
-            Err(e) => None,
-            Ok(row) => Some(row)
-        }
-    }
-
+    /// Gets all quotes
     pub async fn get_all(conn: &Pool<Postgres>) -> Vec<Quote> {
         let res = query_as::<_, Quote>("SELECT * FROM quotes;")
             .fetch_all(conn).await;

@@ -7,6 +7,7 @@ use crate::AppState;
 use crate::database::quote::Quote;
 use std::str::FromStr;
 
+/// Default web response
 #[get("/")]
 pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
     let mut ctx = Context::new();
@@ -14,6 +15,7 @@ pub(crate) async fn index_page(data: web::Data<AppState>) -> HttpResponse {
     HttpResponse::Ok().body(rendered)
 }
 
+/// Web page for uploading new quotes
 #[get("/upload")]
 pub(crate) async fn upload_page(data: web::Data<AppState>) -> HttpResponse {
     let mut ctx = Context::new();
@@ -21,6 +23,7 @@ pub(crate) async fn upload_page(data: web::Data<AppState>) -> HttpResponse {
     HttpResponse::Ok().body(rendered)
 }
 
+/// Web page for validating quotes
 #[get("/validate/{admin_key}")]
 pub(crate) async fn validate_page(data: web::Data<AppState>, req: HttpRequest) -> HttpResponse {
     let admin_key = req.match_info().get("admin_key").unwrap();
@@ -44,6 +47,7 @@ pub(crate) struct ResponseQuote {
     pub(crate) filename: Option<String>
 }
 
+/// Webpage for fetching all quotes
 #[get("/all-sources")]
 pub(crate) async fn all_sources_page(data: web::Data<AppState>) -> HttpResponse {
     let quotes = Quote::get_all(&data.db).await;
@@ -66,6 +70,7 @@ pub(crate) async fn all_sources_page(data: web::Data<AppState>) -> HttpResponse 
     HttpResponse::Ok().body(rendered)
 }
 
+/// Webpage for specific details of a quote
 #[get("/view/{id}")]
 pub(crate) async fn view_page(data: web::Data<AppState>, req: HttpRequest) -> HttpResponse {
     let admin_key = req.match_info().get("id").unwrap();
