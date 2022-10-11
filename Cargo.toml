@@ -22,3 +22,4 @@ sha256 = "1.0.3"
 futures-util = { version = "0.3.17", default-features = false, features = ["std"] }
 sanitize-filename = "0.4"
 uuid = { version = "1", features = ["v4"] }
+tera = "1.17.1"
