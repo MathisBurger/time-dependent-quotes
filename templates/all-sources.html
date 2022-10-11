@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All sources</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Uploaded At</th>
+            <th>Hash</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for quote in quotes %}
+    <tr>
+        <td>{{quote.id}}</td>
+        <td>{{quote.title}}</td>
+        <td>{{quote.uploaded_at}}</td>
+        <td>{{quote.hash}}</td>
+        <td><a href="#">View</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

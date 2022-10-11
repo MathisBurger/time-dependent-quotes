@@ -63,4 +63,10 @@ impl Quote {
             Ok(row) => Some(row)
         }
     }
+
+    pub async fn get_all(conn: &Pool<Postgres>) -> Vec<Quote> {
+        let res = query_as::<_, Quote>("SELECT * FROM quotes;")
+            .fetch_all(conn).await;
+        return res.unwrap();
+    }
 }
