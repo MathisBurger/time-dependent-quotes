@@ -1,4 +1,7 @@
-use std::io::Write;
+use std::fs;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::str::FromStr;
 use actix_web::{HttpResponse, Responder, web, get, post, Error, HttpRequest, error, middleware};
 use crate::AppState;
 use serde::Deserialize;
@@ -16,6 +19,11 @@ pub(crate) struct AddQuoteRequest {
 #[derive(Deserialize)]
 pub(crate) struct SearchForQuoteRequest {
     search_string: String
+}
+
+#[derive(Deserialize)]
+pub(crate) struct DownloadQuoteRequest {
+    id: i32
 }
 
 
@@ -56,4 +64,28 @@ pub(crate) async fn search_for_quote(
         return Ok(HttpResponse::Ok().json(result.unwrap()));
     }
     return Ok(HttpResponse::Ok().into());
+}
+
+#[get("/api/quote/download")]
+pub(crate) async fn download_quote(
+    data: web::Data<AppState>,
+    query: web::Query<DownloadQuoteRequest>
+) -> HttpResponse {
+    let quote = Quote::get_by_id(&data.db, query.id).await;
+    if quote.is_none() {
+        return HttpResponse::BadRequest().body("Quote does not exist");
+    }
+    let unwrapped_quote = quote.unwrap();
+    let filepath = format!("./data/{}", unwrapped_quote.filename.unwrap());
+    let file_bytes = get_file_as_byte_vec(&filepath);
+    HttpResponse::Ok().body(file_bytes)
+}
+
+fn get_file_as_byte_vec(filename: &String) -> Vec<u8> {
+    let mut f = File::open(&filename).expect("no file found");
+    let metadata = fs::metadata(&filename).expect("unable to read metadata");
+    let mut buffer = vec![0; metadata.len() as usize];
+    f.read(&mut buffer).expect("buffer overflow");
+
+    buffer
 }

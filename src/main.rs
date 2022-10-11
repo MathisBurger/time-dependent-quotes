@@ -43,6 +43,7 @@ async fn main() -> std::io::Result<()> {
             }))
             .service(controller::quote_controller::add_quote)
             .service(controller::quote_controller::search_for_quote)
+            .service(controller::quote_controller::download_quote)
             .service(controller::validate_controller::validate_quote)
             .service(controller::template_controller::index_page)
             .service(controller::template_controller::all_sources_page)
